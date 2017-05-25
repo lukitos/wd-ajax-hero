@@ -4,6 +4,7 @@
   const movies = [];
 
   const renderMovies = function() {
+    console.log('inside renderMovies, movies=', movies);
     $('#listings').empty();
 
     for (const movie of movies) {
@@ -17,7 +18,9 @@
         'data-tooltip': movie.title
       });
 
-      $title.tooltip({ delay: 50 }).text(movie.title);
+      $title.tooltip({
+        delay: 50
+      }).text(movie.title);
 
       const $poster = $('<img>').addClass('poster');
 
@@ -57,4 +60,44 @@
   };
 
   // ADD YOUR CODE HERE
+
+  function getMovies() {
+
+    if ($('#search').val()) {
+      var str = 'https://omdb-api.now.sh/?s=' + $('#search').val();
+      console.log('In getMovies, str: ' + str);
+      $.get(str).then(function(data) {
+        console.log('In getMovies, data: ', data);
+        console.log('In getMovies, data.Search: ', data.Search);
+        movies.length = 0;
+        for (var i=0; i<data.Search.length; i++) {
+          // console.log('data.Search[i]=', i, data.Search[i])
+          var amovie = {};
+          amovie.id = data.Search[i].imdbID;
+          amovie.poster = data.Search[i].Poster;
+          amovie.title = data.Search[i].Title;
+          amovie.year = data.Search[i].Year;
+          console.log('Inside get, amovie: ', i, amovie);
+          movies.push(amovie);
+        }
+        console.log('Inside get, movies=', movies);
+        renderMovies(movies );
+      });
+      $('#search').val('');
+
+    } else {
+      alert('You must enter a search keyword');
+    }
+
+    console.log("In checkMovie, movies= ", movies);
+
+    return movies;
+  }
+
+  $('form').submit(function(e) {
+    e.preventDefault();
+    getMovies();
+    // console.log('In form, movies= ', movies);
+  });
+
 })();
